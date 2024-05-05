@@ -1,0 +1,33 @@
+% Define fuzzy logic system
+fis = mamfis('Name', 'VehicleSpeedControl');
+fis = addInput(fis, [0 100], 'Name', 'RoadCondition');
+fis = addInput(fis, [0 10], 'Name', 'TrafficDensity');
+fis = addInput(fis, [0 50], 'Name', 'WeatherCondition');
+fis = addOutput(fis, [0 100], 'Name', 'Speed');
+fis = addMF(fis, 'input', 1, 'poor', 'gaussmf', [10 0]);
+fis = addMF(fis, 'input', 1, 'fair', 'gaussmf', [10 30]);
+fis = addMF(fis, 'input', 1, 'good', 'gaussmf', [10 60]);
+fis = addMF(fis, 'input', 2, 'low', 'trimf', [0 0 5]);
+fis = addMF(fis, 'input', 2, 'medium', 'trimf', [0 5 10]);
+fis = addMF(fis, 'input', 2, 'high', 'trimf', [5 10 10]);
+fis = addMF(fis, 'input', 3, 'clear', 'trapmf', [0 0 10 20]);
+fis = addMF(fis, 'input', 3, 'rainy', 'trapmf', [10 20 30 40]);
+fis = addMF(fis, 'input', 3, 'snowy', 'trapmf', [30 40 50 50]);
+fis = addMF(fis, 'output', 1, 'slow', 'trimf', [0 0 50]);
+fis = addMF(fis, 'output', 1, 'medium', 'trimf', [0 50 100]);
+fis = addMF(fis, 'output', 1, 'fast', 'trimf', [50 100 100]);
+
+% Define fuzzy rules
+ruleList = [
+    "If RoadCondition is poor and TrafficDensity is low and WeatherCondition is clear then Speed is slow"
+    "If RoadCondition is good and TrafficDensity is high then Speed is fast"
+    % Add more rules as needed
+];
+fis = addRule(fis, ruleList);
+
+% Simulate fuzzy logic system
+roadCond = 30;  % Example road condition value
+trafficDensity = 7;  % Example traffic density value
+weatherCond = 15;  % Example weather condition value
+output = evalfis([roadCond, trafficDensity, weatherCond], fis);
+disp(['Predicted speed: ' num2str(output)]);
