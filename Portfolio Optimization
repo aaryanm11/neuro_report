@@ -1,0 +1,35 @@
+import numpy as np
+from scipy.optimize import minimize
+
+# Sample data (replace with actual asset returns, volatility, etc.)
+returns = np.array([0.1, 0.05, 0.08, 0.12])  # Example expected returns
+volatility = np.array([0.15, 0.1, 0.2, 0.18])  # Example volatilities
+correlation = np.array([[1, 0.3, 0.2, 0.1],
+                        [0.3, 1, 0.4, 0.25],
+                        [0.2, 0.4, 1, 0.35],
+                        [0.1, 0.25, 0.35, 1]])  # Example correlation matrix
+
+# Objective function (negative Sharpe ratio)
+def objective(weights):
+    port_return = np.sum(returns * weights)
+    port_volatility = np.sqrt(np.dot(weights.T, np.dot(correlation * volatility, weights)))
+    return -port_return / port_volatility
+
+# Constraint (weights sum to 1)
+constraint = ({'type': 'eq', 'fun': lambda weights: np.sum(weights) - 1})
+
+# Initial guess
+init_guess = np.ones(len(returns)) / len(returns)
+
+# Optimization using genetic algorithm
+result = minimize(objective, init_guess, method='SLSQP', constraints=constraint)
+
+# Optimal portfolio weights
+optimal_weights = result.x
+print('Optimal Portfolio Weights:', optimal_weights)
+
+# Optimal portfolio statistics
+optimal_return = np.sum(returns * optimal_weights)
+optimal_volatility = np.sqrt(np.dot(optimal_weights.T, np.dot(correlation * volatility, optimal_weights)))
+print('Optimal Portfolio Return:', optimal_return)
+print('Optimal Portfolio Volatility:', optimal_volatility)
